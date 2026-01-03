@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ma Galerie Partagée</title>
+    <style>
+        /* --- CONFIGURATION DES COULEURS --- */
+        /* Remplace les codes ici par ceux de ta palette Pinterest */
+        :root {
+            --bg-color: #f4f1ea;       /* Fond du site (Beige clair) */
+            --card-bg: #ffffff;        /* Fond des photos (Blanc) */
+            --primary-color: #d4a373;  /* Couleur des boutons (Terre/Ocre) */
+            --text-color: #333333;     /* Couleur du texte */
+            --shadow-color: rgba(0,0,0,0.1);
+        }
+
+        /* --- STYLE GÉNÉRAL --- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            font-weight: 300;
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+        }
+
+        /* --- BOUTON AJOUTER --- */
+        .upload-section {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        /* On cache le vrai input file car il est moche */
+        #file-input {
+            display: none;
+        }
+
+        .btn-add {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 6px var(--shadow-color);
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px var(--shadow-color);
+        }
+
+        /* --- GRILLE DE PHOTOS --- */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .photo-card {
+            background-color: var(--card-bg);
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px var(--shadow-color);
+            cursor: pointer;
+            
+            /* L'animation de transition pour la fluidité */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover; /* Coupe l'image proprement */
+            border-radius: 6px;
+        }
+
+        /* --- EFFET AU SURVOL (HOVER) --- */
+        /* La photo bouge et tourne légèrement quand la souris passe dessus */
+        .photo-card:hover {
+            transform: scale(1.05) rotate(2deg);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            z-index: 2;
+        }
+
+        /* --- LIGHTBOX (AGRANDISSEMENT) --- */
+        .lightbox {
+            display: none; /* Caché par défaut */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            cursor: zoom-out;
+        }
+
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 5px;
+            box-shadow: 0 0 20px rgba(255,255,255,0.2);
+            animation: zoomIn 0.3s ease;
+        }
+
+        @keyframes zoomIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>Ma Galerie Photo</h1>
+
+    <div class="upload-section">
+        <label for="file-input" class="btn-add">+ Ajouter une photo</label>
+        <input type="file" id="file-input" accept="image/*">
+    </div>
+
+    <div class="gallery" id="gallery">
+        </div>
+
+    <div class="lightbox" id="lightbox">
+        <img src="" alt="Agrandissement" id="lightbox-img">
+    </div>
+
+    <script>
+        // Récupération des éléments HTML
+        const fileInput = document.getElementById('file-input');
+        const gallery = document.getElementById('gallery');
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+
+        // 1. FONCTION POUR AJOUTER UNE PHOTO
+        fileInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    const imageUrl = e.target.result;
+                    creerElementPhoto(imageUrl);
+                }
+
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // 2. CRÉATION DE L'ÉLÉMENT HTML PHOTO
+        function creerElementPhoto(url) {
+            const card = document.createElement('div');
+            card.className = 'photo-card';
+            
+            const img = document.createElement('img');
+            img.src = url;
+            
+            // Ajout de l'événement clic pour agrandir
+            card.addEventListener('click', () => {
+                ouvrirLightbox(url);
+            });
+
+            card.appendChild(img);
+            gallery.appendChild(card);
+        }
+
+        // 3. GESTION DE LA LIGHTBOX (AGRANDISSEMENT)
+        function ouvrirLightbox(url) {
+            lightboxImg.src = url;
+            lightbox.style.display = 'flex';
+        }
+
+        // Fermer la lightbox quand on clique n'importe où dessus
+        lightbox.addEventListener('click', () => {
+            lightbox.style.display = 'none';
+        });
+
+    </script>
+</body>
+</html>
